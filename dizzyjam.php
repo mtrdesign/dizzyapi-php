@@ -584,6 +584,20 @@ class Dizzyjam_Group_Manage extends Dizzyjam_Group {
 	}
 
 	/**
+	 * Upload a new design.
+	 * @param string $store_id			alphanumeric ID of the store where the product will be added (required)
+	 * @param string $design			an image file to upload as new design (required)
+	 * @return array					API response
+	 */
+	public function upload_design($store_id, $design) {
+		$params = array(
+			'store_id'			=> $store_id,
+			'design_file'       => new Dizzyjam_File($design)
+		);
+		return $this->api->request('manage/upload_design', $params, true);
+	}
+
+	/**
 	 * Create a new product.
 	 * @param string $store_id			alphanumeric ID of the store where the product will be added (required)
 	 * @param string $name				name for the product (required)
@@ -593,11 +607,12 @@ class Dizzyjam_Group_Manage extends Dizzyjam_Group {
 	 * @param array $colours			list of numeric colour IDs to make available for the product (optional; all colours will be created if null OR if either $product_type_id or $process is null)
 	 * @param int|null $featured_colour	numeric ID of the colour which is displayed by default (required if all of $product_type_id, $process and $colours are provided; if any of them is null, the first available colour will be made featured)
 	 * @param int|null $scale			scale of the design in percentage of the maximum possible print size (optional; default: 100; min: 10, max: 100)
+	 * @param int|null $angle			angle of the design within the available print area (optional: default: 0 (= normal); min: -180, max: 180)
 	 * @param int|null $horiz			horizontal position of the design within the available print area (optional: default: 0 (= center); min: -100 (= flush left), max: 100 (= flush right))
 	 * @param int|null $vert			vertical position of the design within the available print area (optional: default: 0 (= center); min: -100 (= flush top), max: 100 (= flush bottom))
 	 * @return array					API response
 	 */
-	public function create_product($store_id, $name, $design, $product_type_id, $process, array $colours, $featured_colour = null, $scale = null, $horiz = null, $vert = null) {
+	public function create_product($store_id, $name, $design, $product_type_id, $process, array $colours, $featured_colour = null, $scale = null, $angle = null, $horiz = null, $vert = null) {
 		$params = array(
 			'store_id'			=> $store_id,
 			'name'				=> $name,
@@ -606,6 +621,7 @@ class Dizzyjam_Group_Manage extends Dizzyjam_Group {
 			'colours'			=> count($colours)? join(',', $colours): 'all',
 			'featured_colour'	=> $featured_colour,
 			'scale'				=> $scale,
+			'angle'				=> $angle,
 			'horiz'				=> $horiz,
 			'vert'				=> $vert,
 		);
