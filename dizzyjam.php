@@ -188,18 +188,20 @@ class Dizzyjam_Group_Catalogue extends Dizzyjam_Group {
 
 	/**
 	 * Get details for a store.
-	 * @param string $store_id		alphanumeric ID of the store (required)
-	 * @param string|null $country	2-char country code for shipping costs (optional; default: 'gb')
-	 * @param int|null $count 		number of store products to list (optional; default: all products)
-	 * @param int|null $start		offset to start listing products from (optional; 0-based, default: 0)
-	 * @return array				API response
+	 * @param string $store_id				alphanumeric ID of the store (required)
+	 * @param string|null $country			2-char country code for shipping costs (optional; default: 'gb')
+	 * @param string|null $embed_settings	show embed shop settings in the response (optional; default: 'no')
+	 * @param int|null $count 				number of store products to list (optional; default: all products)
+	 * @param int|null $start				offset to start listing products from (optional; 0-based, default: 0)
+	 * @return array						API response
 	 */
-	public function store_info($store_id, $country = null, $count = null, $start = null) {
+	public function store_info($store_id, $country = null, $embed_settings = null, $count = null, $start = null) {
 		$params = array(
-			'store_id'	=> $store_id,
-			'country'	=> $country,
-			'count'		=> $count,
-			'start'		=> $start,
+			'store_id'		 => $store_id,
+			'country'		 => $country,
+			'embed_settings' => $embed_settings,
+			'count'			 => $count,
+			'start'			 => $start,
 		);
 		return $this->api->request('catalogue/store_info', $params);
 	}
@@ -483,6 +485,7 @@ class Dizzyjam_Group_Manage extends Dizzyjam_Group {
 	 * @param string $name				name of the store (required)
 	 * @param string $description		description of the store (required)
 	 * @param string|null $logo_file	path to image file to upload as store logo (optional)
+	 * @param string|null $embed_shop	prepare and create an embed store (optional, values: "yes" or "no")
 	 * @param array $genres				list of numeric genre IDs (optional; valid values available via $api->manage->store_options())
 	 * @param string|null $website		URL of the store's website (optional, but see note below)
 	 * @param string|null $myspace_url	URL of the store's MySpace page (optional, but see note below)
@@ -493,12 +496,13 @@ class Dizzyjam_Group_Manage extends Dizzyjam_Group {
 	 * @return array					API response
 	 * At least one of the $website, $myspace_url, $facebook_url or $twitter_id parameters is required.
 	 */
-	public function create_store($store_id, $name, $description, $logo = null, array $genres = array(), $website = null, $myspace_url = null, $facebook_url = null, $twitter_id = null, $rss_feed_url = null, $user_id = null) {
+	public function create_store($store_id, $name, $description, $logo = null, $embed_shop = null, array $genres = array(), $website = null, $myspace_url = null, $facebook_url = null, $twitter_id = null, $rss_feed_url = null, $user_id = null) {
 		$params = array(
 			'store_id'		=> $store_id,
 			'name'			=> $name,
 			'description'	=> $description,
 			'logo_file'		=> strlen($logo)? new Dizzyjam_File($logo): null,
+			'embed_shop'	=> $embed_shop,
 			'genres'		=> count($genres)? join(',', $genres): null,
 			'website'		=> $website,
 			'myspace_url'	=> $myspace_url,
@@ -516,6 +520,7 @@ class Dizzyjam_Group_Manage extends Dizzyjam_Group {
 	 * @param string|null $name			name of the store (optional)
 	 * @param string|null $description	description of the store (optional)
 	 * @param string|null $logo_file	path to image file to upload as store logo (optional)
+	 * @param string|null $embed_shop	prepare and create an embed store (optional, values: "yes" or "no")
 	 * @param array|null $genres		list of numeric genre IDs (optional; valid values available via $api->manage->store_options())
 	 * @param string|null $website		URL of the store's website (optional, but see note below)
 	 * @param string|null $myspace_url	URL of the store's MySpace page (optional, but see note below)
@@ -531,11 +536,12 @@ class Dizzyjam_Group_Manage extends Dizzyjam_Group {
 	 * but you may pass $website = '', $myspace_url = 'http://...' to clear the website and set a MySpace URL
 	 * in the same request.
 	 */
-	public function edit_store($store_id, $name, $description, $logo = null, $genres = null, $website = null, $myspace_url = null, $facebook_url = null, $twitter_id = null, $rss_feed_url = null) {
+	public function edit_store($store_id, $name, $description, $logo = null, $embed_shop = null, $genres = null, $website = null, $myspace_url = null, $facebook_url = null, $twitter_id = null, $rss_feed_url = null) {
 		$params = array(
 			'store_id'		=> $store_id,
 			'name'			=> $name,
 			'description'	=> $description,
+			'embed_shop'	=> $embed_shop,
 		);
 		$clearable_params = array(
 			'logo_file'		=> strlen($logo)? new Dizzyjam_File($logo): $logo,
@@ -661,6 +667,18 @@ class Dizzyjam_Group_Manage extends Dizzyjam_Group {
 			'product_id' => $product_id,
 		);
 		return $this->api->request('manage/delete_product', $params, true);
+	}
+
+	/**
+	 * Delete a product design.
+	 * @param int $design_id			numeric ID of the design (required)
+	 * @return array					API response
+	 */
+	public function delete_design($design_id) {
+		$params = array(
+			'design_id' => $design_id,
+		);
+		return $this->api->request('manage/delete_design', $params, true);
 	}
 
 }
